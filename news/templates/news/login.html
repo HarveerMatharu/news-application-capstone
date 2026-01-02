@@ -1,0 +1,34 @@
+{% extends 'news/base.html' %}
+
+{% block title %}Login - News Application{% endblock %}
+
+{% block content %}
+<h2>Login</h2>
+
+<form method="post" style="max-width: 400px;">
+    {% csrf_token %}
+
+    <div style="margin-bottom: 15px;">
+        <label for="username" style="display: block; margin-bottom: 5px; font-weight: bold;">Username:</label>
+        <input type="text" id="username" name="username" required
+               style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 3px;">
+    </div>
+
+    <div style="margin-bottom: 15px;">
+        <label for="password" style="display: block; margin-bottom: 5px; font-weight: bold;">Password:</label>
+        <input type="password" id="password" name="password" required
+               style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 3px;">
+    </div>
+
+    <div>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </div>
+</form>
+
+<p style="margin-top: 20px;">
+    Test Credentials:<br>
+    Editor: editor1 / testpass123<br>
+    Journalist: journalist1 / testpass123<br>
+    Reader: reader1 / testpass123
+</p>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'news/base.html' %}
+
+{% block title %}Publishers - News Application{% endblock %}
+
+{% block content %}
+<h2>Publishers</h2>
+
+{% if publishers %}
+    <table>
+        <thead>
+            <tr>
+                <th>Publisher</th>
+                <th>Description</th>
+                <th>Editors</th>
+                <th>Journalists</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for publisher in publishers %}
+            <tr>
+                <td>{{ publisher.name }}</td>
+                <td>{{ publisher.description|truncatewords:15 }}</td>
+                <td>{{ publisher.editors.count }}</td>
+                <td>{{ publisher.journalists.count }}</td>
+                <td>
+                    <a href="{% url 'news:publisher_detail' publisher.id %}" class="btn btn-primary">View</a>
+                    {% if user.role == 'READER' %}
+                        {% if publisher in user.subscribed_publishers.all %}
+                            <span class="badge badge-success">Subscribed</span>
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div class="empty-state">
+        <p>No publishers available.</p>
+    </div>
+{% endif %}
+{% endblock %}

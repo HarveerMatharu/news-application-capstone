@@ -1,0 +1,36 @@
+{% extends 'news/base.html' %}
+
+{% block title %}Pending Approval - News Application{% endblock %}
+
+{% block content %}
+<h2>Articles Pending Approval</h2>
+
+{% if articles %}
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Publisher</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in articles %}
+            <tr>
+                <td>{{ article.title }}</td>
+                <td>{{ article.author.username }}</td>
+                <td>{{ article.publisher.name|default:"Independent" }}</td>
+                <td>{{ article.created_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <a href="{% url 'news:article_detail' article.id %}" class="btn btn-primary">Review</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No articles pending approval.</p>
+{% endif %}
+{% endblock %}

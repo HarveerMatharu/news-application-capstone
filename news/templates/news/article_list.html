@@ -1,0 +1,44 @@
+{% extends 'news/base.html' %}
+
+{% block title %}All Articles - News Application{% endblock %}
+
+{% block content %}
+<h2>All Articles</h2>
+
+{% if articles %}
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Publisher</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in articles %}
+            <tr>
+                <td>{{ article.title }}</td>
+                <td>{{ article.author.username }}</td>
+                <td>{{ article.publisher.name|default:"Independent" }}</td>
+                <td>
+                    {% if article.approved %}
+                        <span class="badge badge-success">Approved</span>
+                    {% else %}
+                        <span class="badge badge-warning">Pending</span>
+                    {% endif %}
+                </td>
+                <td>{{ article.created_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <a href="{% url 'news:article_detail' article.id %}" class="btn btn-primary">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No articles available.</p>
+{% endif %}
+{% endblock %}

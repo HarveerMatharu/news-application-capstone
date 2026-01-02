@@ -1,0 +1,68 @@
+{% extends 'news/base.html' %}
+
+{% block title %}My Subscribed Articles - News Application{% endblock %}
+
+{% block content %}
+<h2>My Subscribed Articles</h2>
+
+<p>Articles from publishers and journalists you follow.</p>
+
+<div class="mb-20">
+    <a href="{% url 'news:my_subscriptions' %}" class="btn btn-primary">Manage Subscriptions</a>
+</div>
+
+{% if articles %}
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Publisher</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in articles %}
+            <tr>
+                <td>{{ article.title }}</td>
+                <td>
+                    {{ article.author.username }}
+                    {% if article.author in subscribed_journalists %}
+                        <span class="badge badge-info">Following</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ article.publisher.name|default:"Independent" }}
+                    {% if article.publisher in subscribed_publishers %}
+                        <span class="badge badge-info">Following</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if article.approved %}
+                        <span class="badge badge-success">Approved</span>
+                    {% else %}
+                        <span class="badge badge-warning">Pending</span>
+                    {% endif %}
+                </td>
+                <td>{{ article.created_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <a href="{% url 'news:article_detail' article.id %}" class="btn btn-primary">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div class="empty-state">
+        <p>No articles from your subscriptions yet.</p>
+        <p>Subscribe to publishers and journalists to see their articles here.</p>
+        <div class="mt-20">
+            <a href="{% url 'news:publisher_list' %}" class="btn btn-primary">Browse Publishers</a>
+            <a href="{% url 'news:article_list' %}" class="btn btn-primary">Browse Articles</a>
+        </div>
+    </div>
+{% endif %}
+
+{% endblock %}

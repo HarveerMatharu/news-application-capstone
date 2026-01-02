@@ -1,0 +1,47 @@
+{% extends 'news/base.html' %}
+
+{% block title %}Newsletters - News Application{% endblock %}
+
+{% block content %}
+<h2>Newsletters</h2>
+
+{% if user.role == 'EDITOR' or user.role == 'JOURNALIST' %}
+    <div class="mb-20">
+        <a href="{% url 'news:newsletter_create' %}" class="btn btn-success">Create Newsletter</a>
+    </div>
+{% endif %}
+
+{% if newsletters %}
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Articles</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for newsletter in newsletters %}
+            <tr>
+                <td>{{ newsletter.title }}</td>
+                <td>{{ newsletter.author.username }}</td>
+                <td>{{ newsletter.articles.count }} article{{ newsletter.articles.count|pluralize }}</td>
+                <td>{{ newsletter.created_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <a href="{% url 'news:newsletter_detail' newsletter.id %}" class="btn btn-primary">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div class="empty-state">
+        <p>No newsletters available.</p>
+        {% if user.role == 'EDITOR' or user.role == 'JOURNALIST' %}
+            <p><a href="{% url 'news:newsletter_create' %}" class="btn btn-success">Create First Newsletter</a></p>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}

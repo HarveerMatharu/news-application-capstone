@@ -1,0 +1,75 @@
+{% extends 'news/base.html' %}
+
+{% block title %}My Subscriptions - News Application{% endblock %}
+
+{% block content %}
+<h2>My Subscriptions</h2>
+
+<h3>Subscribed Publishers</h3>
+
+{% if subscribed_publishers %}
+    <table>
+        <thead>
+            <tr>
+                <th>Publisher</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for publisher in subscribed_publishers %}
+            <tr>
+                <td>{{ publisher.name }}</td>
+                <td>{{ publisher.description|truncatewords:20 }}</td>
+                <td>
+                    <a href="{% url 'news:publisher_detail' publisher.id %}" class="btn btn-primary">View</a>
+                    <form method="post" action="{% url 'news:unsubscribe_publisher' publisher.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Unsubscribe</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>You are not subscribed to any publishers.</p>
+    <p><a href="{% url 'news:publisher_list' %}" class="btn btn-primary">Browse Publishers</a></p>
+{% endif %}
+
+<h3>Subscribed Journalists</h3>
+
+{% if subscribed_journalists %}
+    <table>
+        <thead>
+            <tr>
+                <th>Journalist</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for journalist in subscribed_journalists %}
+            <tr>
+                <td>{{ journalist.get_full_name|default:journalist.username }}</td>
+                <td>{{ journalist.email }}</td>
+                <td>
+                    <form method="post" action="{% url 'news:unsubscribe_journalist' journalist.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Unsubscribe</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>You are not subscribed to any journalists.</p>
+    <p><a href="{% url 'news:article_list' %}" class="btn btn-primary">Browse Articles to Find Journalists</a></p>
+{% endif %}
+
+<div class="mt-20">
+    <a href="{% url 'news:subscribed_articles' %}" class="btn btn-success">View My Subscribed Articles</a>
+</div>
+
+{% endblock %}
