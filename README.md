@@ -1,134 +1,205 @@
 # News Application - Django Capstone Project
 
-A comprehensive Django-based news application with role-based access control, RESTful API, email notifications, and social media integration.
+A comprehensive Django-based news application with role-based access control, RESTful API, email notifications, and subscription system.
 
-## 📋 Features
+## Features
 
-- **Role-Based Access Control**: Three user roles (Reader, Editor, Journalist) with specific permissions
-- **RESTful API**: Full CRUD operations with JWT authentication
-- **Subscription System**: Readers can subscribe to publishers and journalists
-- **Article Approval Workflow**: Editors approve articles before publication
-- **Email Notifications**: Automatic email alerts to subscribers when articles are approved
-- **Social Media Integration**: Automatic posting to X (formerly Twitter) upon article approval
-- **Newsletter Management**: Curated collections of articles
+- **Custom User Model** with 3 roles: Reader, Editor, Journalist
+- **Article Management** with approval workflow
+- **Newsletter Management** - curated article collections
+- **Publisher Management** - organize journalists and editors
+- **Subscription System** - readers subscribe to publishers/journalists
+- **RESTful API** with JWT authentication
+- **Django Signals** for email and Twitter notifications
+- **Web Interface** with responsive design
+- **Comprehensive Unit Tests** (20+ tests)
 
-## 🛠️ Technology Stack
+## Technology Stack
 
-- **Framework**: Django 5.0.1
-- **API**: Django REST Framework 3.14.0
-- **Authentication**: JWT (djangorestframework-simplejwt)
-- **Database**: MariaDB (MySQL)
-- **Email**: Django Email Backend
-- **Social Media**: X (Twitter) API v2
+- Django 5.0.1
+- Django REST Framework 3.14.0
+- MariaDB / SQLite
+- JWT Authentication (Simple JWT)
+- Docker
+- Sphinx Documentation
 
-## 📦 Installation
+## Project Structure
+
+```
+news_project/
+├── news_project/          # Project settings
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── news/                  # Main application
+│   ├── models.py         # User, Article, Publisher, Newsletter models
+│   ├── views.py          # API ViewSets
+│   ├── web_views.py      # Web interface views
+│   ├── serializers.py    # DRF serializers
+│   ├── permissions.py    # Role-based permissions
+│   ├── tasks.py          # Email and Twitter notification tasks
+│   ├── urls.py           # URL routing
+│   ├── admin.py          # Admin configuration
+│   ├── tests.py          # Unit tests
+│   ├── templates/        # HTML templates (13 files)
+│   ├── static/           # CSS and static files
+│   └── management/       # Custom management commands
+├── docs/                  # Sphinx documentation
+├── Dockerfile            # Docker configuration
+├── .dockerignore
+├── .gitignore
+├── requirements.txt
+└── README.md
+```
+
+## Installation
 
 ### Prerequisites
 
-- Python 3.10+
-- MariaDB 10.5+ (or MySQL 8.0+)
-- pip
-- virtualenv (recommended)
+- Python 3.11+
+- MariaDB (or SQLite for development)
+- Git
+- Docker (optional)
 
-### Step 1: Clone & Setup Virtual Environment
+### Option 1: Local Installation with Virtual Environment
 
+1. **Clone the repository**
 ```bash
-# Create project directory
-mkdir news_application
-cd news_application
+git clone <your-repo-url>
+cd news_project
+```
 
-# Create virtual environment
-python -m venv .venv
+2. **Create and activate virtual environment**
+```bash
+# Windows
+python -m venv venv
+venv\Scripts\activate
 
-# Activate virtual environment
-# On Windows:
-.venv\Scripts\activate
-# On macOS/Linux:
+# macOS/Linux
+python3 -m venv venv
 source venv/bin/activate
 ```
 
-### Step 2: Install Dependencies
-
+3. **Install dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-### Step 3: Database Setup
+4. **Configure database**
 
-```bash
-# Create MariaDB database
-mysql -u root -p
-```
-
+**For MariaDB (Production):**
 ```sql
 CREATE DATABASE news_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'news_user'@'localhost' IDENTIFIED BY 'your_secure_password';
+CREATE USER 'news_user'@'localhost' IDENTIFIED BY 'your_password';
 GRANT ALL PRIVILEGES ON news_db.* TO 'news_user'@'localhost';
 FLUSH PRIVILEGES;
-EXIT;
 ```
 
-### Step 4: Configure Settings
-
-Update `news_project/settings.py` with your database credentials and other settings:
-
+Update `news_project/settings.py`:
 ```python
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'news_db',
         'USER': 'news_user',
-        'PASSWORD': 'your_secure_password',
+        'PASSWORD': 'your_password',
         'HOST': 'localhost',
         'PORT': '3306',
     }
 }
 ```
 
-Configure email settings (use console backend for development):
-
+**For SQLite (Development):**
 ```python
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 ```
 
-Configure X (Twitter) API credentials (optional):
-
-```python
-TWITTER_BEARER_TOKEN = 'your-bearer-token'
-```
-
-### Step 5: Run Migrations
-
+5. **Run migrations**
 ```bash
-python manage.py makemigrations
 python manage.py migrate
 ```
 
-### Step 6: Setup Groups & Permissions
-
+6. **Setup groups and permissions**
 ```bash
 python manage.py setup_groups
 ```
 
-### Step 7: Create Superuser
-
+7. **Create superuser**
 ```bash
 python manage.py createsuperuser
 ```
+Set the role to EDITOR via admin panel after creation.
 
-### Step 8: Run Development Server
-
+8. **Run the development server**
 ```bash
 python manage.py runserver
 ```
 
 Access the application at: `http://localhost:8000`
 
-## 📚 API Documentation
+### Option 2: Docker Installation
+
+1. **Clone the repository**
+```bash
+git clone <your-repo-url>
+cd news_project
+```
+
+2. **Build Docker image**
+```bash
+docker build -t news-app .
+```
+
+3. **Run Docker container**
+```bash
+docker run -p 8000:8000 news-app
+```
+
+Access the application at: `http://localhost:8000`
+
+**Note:** Docker setup uses SQLite by default. For production with MariaDB, use Docker Compose (configuration not included).
+
+## Configuration
+
+### Environment Variables
+
+For production, create a `.env` file (not tracked in Git):
+
+```env
+SECRET_KEY=your-secret-key-here
+DATABASE_PASSWORD=your-database-password
+EMAIL_HOST_USER=your-email@example.com
+EMAIL_HOST_PASSWORD=your-email-password
+TWITTER_BEARER_TOKEN=your-twitter-api-token
+```
+
+Update `settings.py` to use environment variables:
+```python
+from decouple import config
+
+SECRET_KEY = config('SECRET_KEY')
+```
+
+### Test Users
+
+After running setup_groups, create test users via admin panel:
+
+- **editor1** (Role: EDITOR) - Can approve articles, manage content
+- **journalist1** (Role: JOURNALIST) - Can create articles and newsletters
+- **reader1** (Role: READER) - Can view content and manage subscriptions
+
+Suggested password for testing: `testpass123`
+
+## API Documentation
 
 ### Authentication
 
-#### Obtain JWT Token
+**Obtain JWT Token:**
 ```http
 POST /api/token/
 Content-Type: application/json
@@ -137,192 +208,193 @@ Content-Type: application/json
     "username": "your_username",
     "password": "your_password"
 }
-```
 
-**Response:**
-```json
+Response:
 {
     "access": "eyJ0eXAiOiJKV1QiLCJhbGc...",
     "refresh": "eyJ0eXAiOiJKV1QiLCJhbGc..."
 }
 ```
 
-#### Use Token in Requests
+**Use Token:**
 ```http
-GET /api/articles/
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
+Authorization: Bearer <access_token>
 ```
 
-### Article Endpoints
+### Main API Endpoints
 
-| Method | Endpoint | Description | Access |
-|--------|----------|-------------|--------|
-| GET | `/api/articles/` | List all approved articles | All authenticated users |
-| GET | `/api/articles/subscribed/` | User's subscribed content | Readers only |
-| GET | `/api/articles/<id>/` | Single article detail | All authenticated users |
-| POST | `/api/articles/` | Create new article | Journalists only |
-| PUT | `/api/articles/<id>/` | Update article | Editors & Journalists |
-| DELETE | `/api/articles/<id>/` | Delete article | Editors & Journalists |
-| POST | `/api/articles/<id>/approve/` | Approve article | Editors only |
+**Articles:**
+- `GET /api/articles/` - List all approved articles
+- `GET /api/articles/subscribed/` - Articles from subscriptions (readers)
+- `GET /api/articles/<id>/` - Article detail
+- `POST /api/articles/` - Create article (journalists)
+- `PUT /api/articles/<id>/` - Update article
+- `DELETE /api/articles/<id>/` - Delete article
+- `POST /api/articles/<id>/approve/` - Approve article (editors)
 
-### Newsletter Endpoints
+**Newsletters:**
+- `GET /api/newsletters/` - List all newsletters
+- `GET /api/newsletters/<id>/` - Newsletter detail
+- `POST /api/newsletters/` - Create newsletter (journalists/editors)
+- `PUT /api/newsletters/<id>/` - Update newsletter
+- `DELETE /api/newsletters/<id>/` - Delete newsletter
 
-| Method | Endpoint | Description | Access |
-|--------|----------|-------------|--------|
-| GET | `/api/newsletters/` | List all newsletters | All authenticated users |
-| GET | `/api/newsletters/<id>/` | Single newsletter detail | All authenticated users |
-| POST | `/api/newsletters/` | Create newsletter | Editors & Journalists |
-| PUT | `/api/newsletters/<id>/` | Update newsletter | Editors & Journalists |
-| DELETE | `/api/newsletters/<id>/` | Delete newsletter | Editors & Journalists |
+**Publishers:**
+- `GET /api/publishers/` - List all publishers
+- `GET /api/publishers/<id>/` - Publisher detail
 
-### Example API Calls
+**Users & Subscriptions:**
+- `GET /api/users/me/` - Current user info
+- `POST /api/users/<id>/subscribe_publisher/` - Subscribe to publisher
+- `POST /api/users/<id>/subscribe_journalist/` - Subscribe to journalist
 
-#### Create Article (Journalist)
-```bash
-curl -X POST http://localhost:8000/api/articles/ \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "Breaking News",
-    "content": "This is the article content...",
-    "publisher_id": 1
-  }'
-```
+## Web Interface
 
-#### Approve Article (Editor)
-```bash
-curl -X POST http://localhost:8000/api/articles/1/approve/ \
-  -H "Authorization: Bearer YOUR_TOKEN"
-```
+### Main Pages
 
-#### Get Subscribed Articles (Reader)
-```bash
-curl http://localhost:8000/api/articles/subscribed/ \
-  -H "Authorization: Bearer YOUR_TOKEN"
-```
+- `/` - Article list (role-based filtering)
+- `/articles/subscribed/` - Personalized feed (readers)
+- `/articles/pending/` - Pending approval (editors)
+- `/articles/create/` - Create article (journalists)
+- `/articles/<id>/` - Article detail
+- `/newsletters/` - Newsletter list
+- `/publishers/` - Publisher list
+- `/subscriptions/` - Manage subscriptions (readers)
 
-## 👥 User Roles & Permissions
+### User Roles
 
-### Reader
-- View approved articles
-- View newsletters
+**Reader:**
+- View approved articles and newsletters
 - Subscribe to publishers and journalists
-- Access subscribed content
+- View personalized article feed
+- Cannot create content
 
-### Journalist
-- All Reader permissions
-- Create articles
-- Edit own articles
-- Delete own articles
-- Create newsletters
-- Edit own newsletters
+**Journalist:**
+- Create, edit, delete own articles
+- Create, edit, delete own newsletters
+- View all articles
+- Cannot approve articles
 
-### Editor
-- View all articles (approved and unapproved)
+**Editor:**
+- View all articles (approved and pending)
 - Approve articles
-- Edit any article
-- Delete any article
-- Edit any newsletter
-- Delete any newsletter
+- Edit and delete any article
+- Edit and delete any newsletter
+- Cannot create articles (not a journalist)
 
-## 🧪 Running Tests
+## Testing
 
+Run all tests:
 ```bash
-# Run all tests
 python manage.py test news
+```
 
-# Run with coverage
-coverage run --source='news' manage.py test news
+Run with coverage:
+```bash
+pip install coverage
+coverage run --source='.' manage.py test news
 coverage report
 ```
 
-### Test Coverage
+Expected output: 20+ tests passing
 
-The test suite includes:
-- User model and role assignment tests
-- Article API endpoint tests
-- Subscription functionality tests
-- Newsletter API tests
-- Signal functionality tests (email & Twitter)
-- JWT authentication tests
+## Documentation
 
-## 🗂️ Project Structure
+Sphinx documentation is available in the `docs/` directory.
 
-```
-news_application/
-├── news_project/
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-├── news/
-│   ├── migrations/
-│   ├── management/
-│   │   └── commands/
-│   │       └── setup_groups.py
-│   ├── models.py
-│   ├── views.py
-│   ├── serializers.py
-│   ├── permissions.py
-│   ├── tasks.py
-│   ├── admin.py
-│   ├── urls.py
-│   └── tests.py
-├── requirements.txt
-└── README.md
+**View documentation:**
+Open `docs/_build/html/index.html` in your browser.
+
+**Rebuild documentation:**
+```bash
+cd docs
+make html  # or .\make.bat html on Windows
 ```
 
-## 🔧 Configuration
+## Django Signals
 
-### Email Configuration
+The application uses Django signals for automated notifications:
 
-For production, use SMTP:
+**Article Approval Signal:**
+When an editor approves an article (`approved=True`):
+1. Email notifications sent to all subscribers
+2. Article posted to Twitter (if API credentials configured)
 
-```python
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your-email@gmail.com'
-EMAIL_HOST_PASSWORD = 'your-app-password'
+**Configuration:**
+Update `news/tasks.py` with your email and Twitter credentials.
+
+## Database Schema
+
+**Main Models:**
+- **User** - Custom user with role field and subscription relationships
+- **Article** - News articles with approval workflow
+- **Publisher** - Organizations with editors and journalists
+- **Newsletter** - Curated collections of articles
+
+**Relationships:**
+- User → Articles (one-to-many as author)
+- User → Publishers (many-to-many as subscribers)
+- User → Journalists (many-to-many as subscribers)
+- Publisher → Articles (one-to-many)
+- Newsletter → Articles (many-to-many)
+
+Database normalized to 3NF (Third Normal Form).
+
+## Deployment Notes
+
+### Security Checklist
+
+Before deploying to production:
+
+- [ ] Change `SECRET_KEY` in settings.py
+- [ ] Set `DEBUG = False`
+- [ ] Update `ALLOWED_HOSTS`
+- [ ] Use environment variables for sensitive data
+- [ ] Enable HTTPS
+- [ ] Configure proper database backup
+- [ ] Set up proper email backend (not console)
+- [ ] Configure Twitter API credentials
+- [ ] Review and update CORS settings if needed
+
+### Static Files
+
+Collect static files for production:
+```bash
+python manage.py collectstatic
 ```
 
-### X (Twitter) API Setup
+### Database Migrations
 
-1. Create a Twitter Developer account
-2. Create an app and generate credentials
-3. Add credentials to settings:
-
-```python
-TWITTER_BEARER_TOKEN = 'your-bearer-token'
+Always run migrations on deployment:
+```bash
+python manage.py migrate
 ```
 
-## 📝 Implementation Notes
+## Troubleshooting
 
-### Signals vs View-Based Logic
+**Issue: mysqlclient installation fails**
+- Solution: Install system dependencies first (on Ubuntu):
+  ```bash
+  sudo apt-get install python3-dev default-libmysqlclient-dev build-essential
+  ```
 
-This project uses **Django Signals** (Option 1) for article approval notifications:
-- `post_save` signal on Article model
-- Automatically sends emails to subscribers
-- Automatically posts to X (Twitter)
-- Keeps views clean and follows separation of concerns
+**Issue: Sphinx documentation fails to build**
+- Solution: Temporarily switch to SQLite in settings.py when building docs
 
-### Database Normalization
+**Issue: Docker container can't connect to MariaDB**
+- Solution: Use Docker Compose or configure Docker network properly
 
-The database schema is normalized to 3NF:
-- Users table with role-based fields
-- Articles table with foreign keys
-- Publishers table with many-to-many relationships
-- Newsletters table with many-to-many to articles
-- Subscription tables (through relationships)
 
-### Security Considerations
+## License
 
-- JWT authentication with token expiration
-- Role-based access control at API level
-- Permission checks at view level
-- CSRF protection enabled
-- SQL injection protection (Django ORM)
+Created as part of HyperionDev Django Backend Development Course (Level 3).
 
-## 👨‍💻 Author
+## Author
 
 Harveer Matharu
+January 2026
+
+## Acknowledgments
+
+- HyperionDev for course materials and project specifications
+- Django and Django REST Framework documentation
